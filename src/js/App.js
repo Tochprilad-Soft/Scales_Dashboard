@@ -11,6 +11,7 @@ const store = configureStore();
 
 import Login from './components/Login/Login'
 import MainContainer from './components/MainContainer/MainContainer'
+import NotFound from './components/NotFound/NotFound'
 import cookie from "react-cookie";
 import {CookiesProvider, useCookies} from 'react-cookie';
 import {isEmpty} from "lodash";
@@ -28,6 +29,7 @@ class App extends Component {
                         <Switch>
                             <Route exact path="/" component={MainContainer}/>
                             <Route path="/login" component={Login}/>
+                            <Route component={NotFound}/>
                         </Switch>
                     </BrowserRouter>
                 </Provider>
