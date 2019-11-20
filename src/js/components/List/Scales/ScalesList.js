@@ -4,9 +4,11 @@ import {bindActionCreators} from 'redux';
 import {withRouter, BrowserRouter as Router, Route, Link} from "react-router-dom";
 import cookie from "react-cookie";
 import {isEqual, isEmpty, isArray, get} from 'lodash'
+import moment from 'moment'
 
 import * as userActions from "../../../actions-redux/user_actions.js";
 import {Container, Table, Button, Col, Row, Form, Collapse, Modal, Dropdown, ButtonGroup} from 'react-bootstrap'
+import {POST_SCALE_SUCCESS, POST_SCALE_FAILED} from '../../../constants/user_constants'
 
 class ScalesList extends Component {
     constructor(props) {
@@ -27,12 +29,11 @@ class ScalesList extends Component {
 
         this.onSetShowModal = this.onSetShowModal.bind(this);
         this.onHandleChange = this.onHandleChange.bind(this);
+        this.onCreateScale = this.onCreateScale.bind(this);
     }
 
     static getDerivedStateFromProps(props, state) {
-        if (!isEqual(props.users.users.length, state.users)) {
-            state.users = props.users.users;
-        }
+        state.users = props.users.users;
 
         return state;
     }
@@ -54,6 +55,62 @@ class ScalesList extends Component {
         const {newScales} = this.state;
         newScales[event.target.id] = event.target.value;
         this.setState({newScales: newScales});
+    }
+
+    onCreateScale() {
+        const $this = this;
+        const {state} = $this;
+        let errors = {}, isValid = true;
+
+        if (isEmpty(state.newScales.scaleName)) {
+            errors.scaleName = 'Не указано название весов'
+        }
+        if (isEmpty(state.newScales.scaleLocation)) {
+            errors.scaleName = 'Не указано расположение весов'
+        }
+        if (isEmpty(state.activeUser)) {
+            errors.activeUser = 'Не выбран собственник весов'
+        }
+
+        for (let error in errors) {
+            if (isEmpty(errors[error])) {
+                delete errors[error];
+            } else {
+                isValid = false;
+            }
+        }
+
+        state.errors = errors;
+        if (!isValid) {
+            $this.setState(state);
+        } else {
+            const scaleInfo = {
+                userId: get(state, 'activeUser.user.id'),
+                ipAddress: '192.168.0.1',
+                port: 8080,
+                scaleName: state.newScales.scaleName,
+                scaleLocation: state.newScales.scaleLocation,
+                description: state.newScales.description,
+                serialNumber: state.newScales.serialNumber
+            };
+
+            return new Promise(resolve => resolve($this.props.userActions.createScaleForUser(scaleInfo)))
+                .then((data) => {
+                    if (isEqual(data.type, POST_SCALE_SUCCESS)) {
+                        $this.setState({
+                            newScales: {
+                                scaleLocation: '',
+                                scaleName: '',
+                                serialNumber: '',
+                                description: ''
+                            },
+                            errors: {},
+                            showCreateModal: false
+                        })
+                    }
+                })
+                .catch(error => {});
+        }
     }
 
 
@@ -91,7 +148,8 @@ class ScalesList extends Component {
                     <Col sm={6}>
 
                         <ButtonGroup>
-                            <Button disabled={isEmpty(state.activeUser)} onClick={this.onSetShowModal.bind(this, true)}>Добавить весы</Button>
+                            <Button disabled={isEmpty(state.activeUser)} onClick={this.onSetShowModal.bind(this, true)}>Добавить
+                                весы</Button>
                             <Button disabled={true}>Редактировать весы</Button>
                             <Button disabled={true}>Удалить весы</Button>
                         </ButtonGroup>
@@ -136,7 +194,7 @@ class ScalesList extends Component {
                         <td>{get(s, 'serialNumber')}</td>
                         <td>{get(s, 'scaleLocation')}</td>
                         <td>{get(s, 'description')}</td>
-                        <td>{get(s, 'updatedAt')}</td>
+                        <td>{moment(get(s, 'updatedAt')).add(2, 'hours').format('DD-MM-YYYY HH:mm')}</td>
                     </tr>
                 )}
             </>
@@ -215,11 +273,25 @@ class ScalesList extends Component {
                                                 type="invalid">{state.errors.serialNumber || null}</Form.Control.Feedback>
                                         </Col>
                                     </Form.Group>
+                                    <Form.Group as={Row} controlId="activeUser">
+                                        <Form.Label sm={3} column={true}>Собственник весов</Form.Label>
+                                        <Col sm={5}>
+                                            <Form.Control type="text"
+                                                          value={get(state, 'activeUser.user.userName')}
+                                                          disabled={true}
+                                                          isInvalid={!!state.errors.activeUser}
+                                                          placeholder="Собственник весов"
+                                            />
+                                            <Form.Control.Feedback
+                                                type="invalid">{state.errors.activeUser || null}</Form.Control.Feedback>
+                                        </Col>
+                                    </Form.Group>
                                 </Form>
                             </Modal.Body>
                             <Modal.Footer>
-                                <Button variant="secondary" onClick={this.onSetShowModal.bind(this,false)}>Отмена</Button>
-                                <Button variant="primary">Сохранить</Button>
+                                <Button variant="secondary"
+                                        onClick={this.onSetShowModal.bind(this, false)}>Отмена</Button>
+                                <Button variant="primary" onClick={this.onCreateScale}>Сохранить</Button>
                             </Modal.Footer>
                         </Modal>
                         <Container className="m-1 bg-light p-3">

@@ -62,7 +62,7 @@ class MainContainer extends Component {
             case components.LOGIN:
                 return (<Login/>);
             default:
-                return components.USERS_LIST;
+                return <UsersList/>;
         }
     }
 
@@ -128,7 +128,7 @@ class MainContainer extends Component {
                     <Col md={{span: 2}}>
                         {AccordionPart}
                     </Col>
-                    <Col>
+                    <Col md={{span: 10}}>
                         {Content}
                     </Col>
                 </Row>

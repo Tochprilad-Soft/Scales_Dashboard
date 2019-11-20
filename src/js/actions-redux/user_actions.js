@@ -9,7 +9,9 @@ import {
     POST_USER_SUCCESS,
     POST_USER_FAILED,
     POST_SCALE_SUCCESS,
-    POST_SCALE_FAILED
+    POST_SCALE_FAILED,
+    DEACTIVATE_ACTIVATION_CODE_SUCCESS,
+    DEACTIVATE_ACTIVATION_CODE_FAILED
 } from '../constants/user_constants'
 import {get} from 'lodash'
 
@@ -51,18 +53,27 @@ export function createScaleForUser(params) {
     return (dispatch) => {
         return axios({
             method: 'post',
-            url: `http:127.0.0.1:8008/sca les`,
+            url: `http://127.0.0.1:8008/scales`,
             data: params
         }).then((response) => {
-            return axios({
-                method: 'get',
-                url: `http://127.0.0.1:8008/scales/all/${get(response, 'data.userId')}`
-            })
-        }).then((response) => {
-            dispatch({type: POST_SCALE_SUCCESS, scale: response.data})
+            return dispatch({type: POST_SCALE_SUCCESS, scale: response.data})
         }).catch((err) => {
             let errorMessage = (err.response) ? err.response.data.message : err.message;
             return dispatch({type: POST_SCALE_FAILED, errorMessage: errorMessage});
+        })
+    }
+}
+
+export function deactivateCode(key) {
+    return (dispatch) => {
+        return axios({
+            method: 'get',
+            url: `http://127.0.0.1:8008/scales/tp/deactivate?key=${key}`
+        }).then((response) => {
+            return dispatch({type: DEACTIVATE_ACTIVATION_CODE_SUCCESS, user: response.data})
+        }).catch((err) => {
+            let errorMessage = (err.response) ? err.response.data.message : err.message;
+            return dispatch({type: DEACTIVATE_ACTIVATION_CODE_FAILED, errorMessage: errorMessage});
         })
     }
 }

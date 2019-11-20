@@ -6,8 +6,11 @@ import {
     POST_USER_SUCCESS,
     POST_USER_FAILED,
     POST_SCALE_SUCCESS,
-    POST_SCALE_FAILED
+    POST_SCALE_FAILED,
+    DEACTIVATE_ACTIVATION_CODE_SUCCESS,
+    DEACTIVATE_ACTIVATION_CODE_FAILED
 } from '../constants/user_constants';
+import {isEqual, isArray, get, head, set} from 'lodash'
 
 const initialState = {
     users: [],
@@ -16,7 +19,7 @@ const initialState = {
 };
 
 export default function user(state = initialState, action) {
-
+    let {users} = state;
     switch (action.type) {
         case GET_USERS_SUCCESS:
             return {
@@ -41,11 +44,35 @@ export default function user(state = initialState, action) {
                 errorMessage: action.errorMessage
             };
         case POST_SCALE_SUCCESS:
+            const userId = get(action.scale, 'userId');
+            users = users.map((u, i) => {
+                if (isEqual(u.id, userId)) {
+                    if (isArray(u.scale)) {
+                        u.scale.push(action.scale)
+                    } else {
+                        u.scale = [action.scale]
+                    }
+                }
+                return u;
+            });
+
             return {
                 ...state,
-                user: action.users,
+                user: users,
                 errorMessage: null
             };
+        case DEACTIVATE_ACTIVATION_CODE_SUCCESS:
+            users = users.map((u, i) => {
+                if (isEqual(u.id, get(action, 'user.id'))) {
+                    set(u, 'user', get(action, 'user'));
+                }
+                return  u;
+            });
+            return {
+                ...state,
+                user: users,
+                errorMessage: null
+            }
         default:
             return state
     }
