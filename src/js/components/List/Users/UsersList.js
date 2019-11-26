@@ -170,7 +170,7 @@ class UsersList extends Component {
                         </Modal>
                         <Container className="m-1 bg-light p-3">
                             <h2>Список пользователей</h2>
-                            <Table striped bordered hover>
+                            <Table striped bordered hover size="sm">
                                 <thead>
                                 <tr>
                                     <th>#</th>
