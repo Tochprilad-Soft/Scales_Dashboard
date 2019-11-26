@@ -39,6 +39,7 @@ class Header extends Component {
                     <Nav.Item>
                         <Nav.Link as={Link} to="/login">Login</Nav.Link>
                     </Nav.Item>
+                    
                     <Nav.Item>
                         <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
                     </Nav.Item>
@@ -72,7 +73,7 @@ class Header extends Component {
             return <Redirect to='/login'/>
         }
 
-        const navigationSection = this.renderNavigationSection();
+        const navigationSection = null;//this.renderNavigationSection();
 
         return (
             <Row className="navbar navbar-light bg-light">
