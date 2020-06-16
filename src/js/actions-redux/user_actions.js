@@ -19,7 +19,7 @@ export function getUsersWithScales() {
     return (dispatch) => {
         return axios({
             method: 'get',
-            url: `http://0.0.0.0:8008/user/all`
+            url: `http://62.149.28.67:8008/user/all`
         }).then((response) => {
             dispatch({type: GET_USERS_SUCCESS, users: response.data});
         }).catch((err) => {
@@ -33,12 +33,12 @@ export function createUser(params) {
     return (dispatch) => {
         return axios({
             method: 'post',
-            url: 'http://0.0.0.0:8008/user',
+            url: 'http://62.149.28.67:8008/user',
             data: params
         }).then((response) => {
             return  axios({
                 method: 'get',
-                url: `http://0.0.0.0:8008/user/all`
+                url: `http://62.149.28.67:8008/user/all`
             });
         }).then((response) => {
             return dispatch({type: POST_USER_SUCCESS, users: response.data})
@@ -53,7 +53,7 @@ export function createScaleForUser(params) {
     return (dispatch) => {
         return axios({
             method: 'post',
-            url: `http://0.0.0.0:8008/scales`,
+            url: `http://62.149.28.67:8008/scales`,
             data: params
         }).then((response) => {
             return dispatch({type: POST_SCALE_SUCCESS, scale: response.data})
@@ -68,7 +68,7 @@ export function deactivateCode(key) {
     return (dispatch) => {
         return axios({
             method: 'get',
-            url: `http://0.0.0.0:8008/scales/tp/deactivate?key=${key}`
+            url: `/http://62.149.28.67:8008/scales/tp/deactivate?key=${key}`
         }).then((response) => {
             return dispatch({type: DEACTIVATE_ACTIVATION_CODE_SUCCESS, user: response.data})
         }).catch((err) => {
